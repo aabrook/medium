@@ -6,7 +6,9 @@ defmodule DistanceTracker.Controller do
   alias Plug.Conn
 
   def index(conn, _params) do
-
-    render(conn, "index.json")
+    trackings =
+      DistanceTracker.DistanceTracker
+      |> Repo.all
+    render(conn, "index.json", trackings: trackings)
   end
 end

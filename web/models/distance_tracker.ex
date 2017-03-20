@@ -21,19 +21,5 @@ defmodule DistanceTracker.DistanceTracker do
     |> cast(params, [:completed_at, :activity, :uuid, :distance])
     |> validate_required([:completed_at, :activity])
   end
-
-  def to_json(trackers) when is_list(trackers) do
-    Enum.map(trackers, &to_json/1)
-  end
-  def to_json(tracker) do
-    %{
-      uuid: tracker.uuid,
-      activity: tracker.activity,
-      completed_at: tracker.completed_at,
-      distance: tracker.distance,
-      inserted_at: tracker.inserted_at,
-      updated_at: tracker.updated_at
-    }
-  end
 end
 
