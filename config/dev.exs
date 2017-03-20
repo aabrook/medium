@@ -36,7 +36,7 @@ config :phoenix, :stacktrace_depth, 20
 config :distance_tracker, DistanceTracker.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
-  password: "postgres",
+  password: "password",
   database: "distance_tracker_dev",
   hostname: "localhost",
   pool_size: 10
