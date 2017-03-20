@@ -16,7 +16,7 @@ defmodule DistanceTracker.Router do
   scope "/", DistanceTracker do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", Controller, :index
   end
 
   # Other scopes may use custom stacks.

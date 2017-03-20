@@ -5,7 +5,6 @@ defmodule DistanceTracker.DistanceTracker do
   @primary_key {:uuid, :binary_id, [autogenerate: true]}
 
   schema "distance_tracker" do
-    field :uuid, :uuid, primary_key: true
     field :distance, :integer
     field :activity, :string
     field :completed_at, :utc_datetime
