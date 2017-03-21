@@ -13,7 +13,7 @@ config :logger, level: :warn
 config :distance_tracker, DistanceTracker.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
-  password: "postgres",
+  password: "password",
   database: "distance_tracker_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox

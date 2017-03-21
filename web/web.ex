@@ -42,7 +42,6 @@ defmodule DistanceTracker.Web do
   def view do
     quote do
       import DistanceTracker.Router.Helpers
-      import DistanceTracker.ErrorHelpers
       import DistanceTracker.Gettext
     end
   end
