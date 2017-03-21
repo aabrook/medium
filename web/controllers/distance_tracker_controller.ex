@@ -11,13 +11,9 @@ defmodule DistanceTracker.Controller do
   end
 
   def show(conn, %{"uuid" => uuid}) do
-    with {:ok, tracker} <- DistanceTracker.Repo.get(DistanceTracker.DistanceTracker, uuid) do
+    with tracker = %DistanceTracker.DistanceTracker{} <- DistanceTracker.Repo.get(DistanceTracker.DistanceTracker, uuid) do
       render(conn, "show.json", tracking: tracker)
     else
-      {:error, errors} ->
-        conn
-        |> put_status(500)
-        |> render(DistanceTracker.ErrorView, "500.json", errors: errors)
       nil ->
         conn
         |> put_status(404)
@@ -43,12 +39,17 @@ defmodule DistanceTracker.Controller do
   end
 
   def delete(conn, %{"uuid" => uuid}) do
-    tracking = Repo.get!(DistanceTracker.DistanceTracker, uuid)
+    with tracking = %DistanceTracker.DistanceTracker{} <- Repo.get(DistanceTracker.DistanceTracker, uuid) do
+      DistanceTracker.Repo.delete!(tracking)
 
-    DistanceTracker.Repo.delete!(tracking)
-
-    conn
-    |> Conn.put_status(204)
-    |> Conn.send_resp(:no_content, "")
+      conn
+      |> Conn.put_status(204)
+      |> Conn.send_resp(:no_content, "")
+    else
+      nil ->
+        conn
+        |> put_status(404)
+        |> render(DistanceTracker.ErrorView, "404.json", error: "Not found")
+    end
   end
 end
