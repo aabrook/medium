@@ -17,6 +17,7 @@ defmodule DistanceTracker.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", Controller, :index
+    get "/:uuid", Controller, :show
   end
 
   # Other scopes may use custom stacks.
