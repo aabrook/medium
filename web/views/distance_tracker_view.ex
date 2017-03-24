@@ -1,12 +1,12 @@
-defmodule DistanceTracker.View do
+defmodule DistanceTracker.TrackerView do
   use DistanceTracker.Web, :view
 
   def render("index.json", %{trackers: trackers}) do
-    %{data: render_many(trackers, DistanceTracker.View, "tracker.json", as: :tracker)}
+    %{data: render_many(trackers, DistanceTracker.TrackerView, "tracker.json")}
   end
 
   def render("show.json", %{tracker: tracker}) do
-    %{data: render_one(tracker, DistanceTracker.View, "tracker.json", as: :tracker)}
+    %{data: render_one(tracker, DistanceTracker.TrackerView, "tracker.json")}
   end
 
   def render("tracker.json", %{tracker: tracker}) do

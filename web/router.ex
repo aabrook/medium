@@ -6,16 +6,11 @@ defmodule DistanceTracker.Router do
   end
 
   scope "/", DistanceTracker do
-    pipe_through :api# Use the default browser stack
+    pipe_through :api
 
-    get "/", Controller, :index
-    get "/:uuid", Controller, :show
-    post "/", Controller, :create
-    delete "/:uuid", Controller, :delete
+    get "/", TrackerController, :index
+    get "/:id", TrackerController, :show
+    post "/", TrackerController, :create
+    delete "/:id", TrackerController, :delete
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", DistanceTracker do
-  #   pipe_through :api
-  # end
 end

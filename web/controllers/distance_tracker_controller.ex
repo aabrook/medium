@@ -1,4 +1,4 @@
-defmodule DistanceTracker.Controller do
+defmodule DistanceTracker.TrackerController do
   use DistanceTracker.Web, :controller
 
   alias DistanceTracker.{Tracker, Repo, ErrorView}
@@ -11,7 +11,7 @@ defmodule DistanceTracker.Controller do
     render(conn, "index.json", trackers: trackers)
   end
 
-  def show(conn, %{"uuid" => uuid}) do
+  def show(conn, %{"id" => uuid}) do
     with tracker = %Tracker{} <- Repo.get(Tracker, uuid) do
       render(conn, "show.json", tracker: tracker)
     else
@@ -39,7 +39,7 @@ defmodule DistanceTracker.Controller do
     end
   end
 
-  def delete(conn, %{"uuid" => uuid}) do
+  def delete(conn, %{"id" => uuid}) do
     with tracker = %Tracker{} <- Repo.get(Tracker, uuid) do
       Repo.delete!(tracker)
 
