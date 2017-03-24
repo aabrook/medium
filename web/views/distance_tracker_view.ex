@@ -1,15 +1,15 @@
 defmodule DistanceTracker.View do
   use DistanceTracker.Web, :view
 
-  def render("index.json", %{trackings: trackings}) do
-    Enum.map(trackings, &to_json/1)
+  def render("index.json", %{trackers: trackers}) do
+    %{data: render_many(trackers, DistanceTracker.View, "tracker.json", as: :tracker)}
   end
 
-  def render("show.json", %{tracking: tracking}) do
-    to_json(tracking)
+  def render("show.json", %{tracker: tracker}) do
+    %{data: render_one(tracker, DistanceTracker.View, "tracker.json", as: :tracker)}
   end
 
-  defp to_json(tracker) do
+  def render("tracker.json", %{tracker: tracker}) do
     %{
       uuid: tracker.uuid,
       activity: tracker.activity,
