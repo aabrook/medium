@@ -23,8 +23,8 @@ defmodule DistanceTracker.TrackerController do
   end
 
   def create(conn, params) do
-    {:ok, date, _} = DateTime.from_iso8601(params["completed_at"])
-    params = %{params | "completed_at" => date}
+    date = parse_date(params["completed_at"])
+    params = Map.put(params, "completed_at", date)
     changeset = Tracker.changeset(%Tracker{}, params)
 
     with {:ok, tracker} <- Repo.insert(changeset) do
@@ -51,6 +51,15 @@ defmodule DistanceTracker.TrackerController do
         conn
         |> put_status(404)
         |> render(ErrorView, "404.json", error: "Not found")
+    end
+  end
+
+  defp parse_date(nil), do: nil
+  defp parse_date(date_as_string) do
+    with {:ok, date, _} <- DateTime.from_iso8601(date_as_string) do
+      date
+    else
+      _ -> nil
     end
   end
 end

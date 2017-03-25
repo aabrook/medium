@@ -58,6 +58,16 @@ defmodule DistanceTracker.TrackerControllerTest do
       } == data
   end
 
+  test "Tracker not found returns a 404", %{conn: conn} do
+    %{resp_body: body, status: status} = conn
+      |> get(tracker_path(conn, :show, UUID.uuid4()))
+
+    %{"error" => message} = Poison.decode!(body)
+
+    assert 404 == status
+    assert "Page not found" == message
+  end
+
   test "Create a new record through post", %{conn: conn} do
     payload = %{
       "completed_at" => "2017-03-21T14:00:00Z",
@@ -75,6 +85,36 @@ defmodule DistanceTracker.TrackerControllerTest do
 
     assert payload == response
     assert status == 201
+  end
+
+  test "Requires activity when creating a request", %{conn: conn} do
+    payload = %{
+      "completed_at" => "2017-03-21T14:00:00Z",
+      "distance": 150
+    }
+
+    %{resp_body: body, status: status} = conn
+      |> post(tracker_path(conn, :create), Poison.encode!(payload))
+
+    %{"error" => message} = Poison.decode!(body)
+
+    assert message == "Bad request"
+    assert status == 422
+  end
+
+  test "Requires completed_at when creating a request", %{conn: conn} do
+    payload = %{
+      "activity": "swimming",
+      "distance": 150
+    }
+
+    %{resp_body: body, status: status} = conn
+      |> post(tracker_path(conn, :create), Poison.encode!(payload))
+
+    %{"error" => message} = Poison.decode!(body)
+
+    assert message == "Bad request"
+    assert status == 422
   end
 
   test "Create saves to the database", %{conn: conn} do
