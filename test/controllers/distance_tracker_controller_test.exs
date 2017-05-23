@@ -84,7 +84,7 @@ defmodule DistanceTracker.TrackerControllerTest do
       |> Map.take(["completed_at", "activity", "distance"])
 
     assert payload == response
-    assert status == 201
+    assert 201 == status
   end
 
   test "Requires activity when creating a request", %{conn: conn} do
@@ -98,8 +98,8 @@ defmodule DistanceTracker.TrackerControllerTest do
 
     %{"error" => message} = Poison.decode!(body)
 
-    assert message == "Bad request"
-    assert status == 422
+    assert %{"error" => "Bad request"} == Poison.decode!(body)
+    assert 422 == status
   end
 
   test "Requires completed_at when creating a request", %{conn: conn} do
@@ -113,8 +113,8 @@ defmodule DistanceTracker.TrackerControllerTest do
 
     %{"error" => message} = Poison.decode!(body)
 
-    assert message == "Bad request"
-    assert status == 422
+    assert %{"error" => "Bad request"} == Poison.decode!(body)
+    assert 422 == status
   end
 
   test "Create saves to the database", %{conn: conn} do
@@ -160,5 +160,15 @@ defmodule DistanceTracker.TrackerControllerTest do
     delete(conn, tracker_path(conn, :delete, uuid))
 
     assert nil == Repo.get(Tracker, uuid)
+  end
+
+  test "Delete returns a 404 if the record is not found", %{conn: conn} do
+    uuid = UUID.uuid4()
+
+    %{resp_body: body, status: status} = conn
+      |> delete(tracker_path(conn, :delete, uuid))
+
+    assert 404 == status
+    assert %{"error" => "Page not found"} == Poison.decode!(body)
   end
 end
