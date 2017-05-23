@@ -16,9 +16,15 @@ defmodule DistanceTracker.Tracker do
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
+    params = remove_nil_params(params)
+
     struct
     |> cast(params, [:completed_at, :activity, :uuid, :distance])
     |> validate_required([:completed_at, :activity])
+  end
+
+  defp remove_nil_params(params) do
+    for {k, v} <- params, v, into: %{}, do: {k, v}
   end
 end
 

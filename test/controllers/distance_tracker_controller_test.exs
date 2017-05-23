@@ -96,7 +96,7 @@ defmodule DistanceTracker.TrackerControllerTest do
     %{resp_body: body, status: status} = conn
       |> post(tracker_path(conn, :create), Poison.encode!(payload))
 
-    %{"error" => message} = Poison.decode!(body)
+    %{"error" => _message} = Poison.decode!(body)
 
     assert %{"error" => "Bad request"} == Poison.decode!(body)
     assert 422 == status
@@ -111,7 +111,7 @@ defmodule DistanceTracker.TrackerControllerTest do
     %{resp_body: body, status: status} = conn
       |> post(tracker_path(conn, :create), Poison.encode!(payload))
 
-    %{"error" => message} = Poison.decode!(body)
+    %{"error" => _message} = Poison.decode!(body)
 
     assert %{"error" => "Bad request"} == Poison.decode!(body)
     assert 422 == status
@@ -142,6 +142,36 @@ defmodule DistanceTracker.TrackerControllerTest do
       activity: "climbing",
       distance: 150
     } == Map.drop(record, [:completed_at])
+  end
+
+  test "Updates a record", %{conn: conn} do
+    tracker = Factory.insert(Tracker, %{distance: 50})
+
+    payload = %{
+      distance: 100
+    }
+
+    %{resp_body: body, status: status} = conn
+      |> patch(tracker_path(conn, :update, tracker.uuid), Poison.encode!(payload))
+
+    distance = body
+      |> Poison.decode!
+      |> get_in(["data", "distance"])
+
+    assert distance == 100
+    assert status == 201
+    assert Repo.get(Tracker, tracker.uuid).distance == 100
+  end
+
+  test "errors with an invalid uuid", %{conn: conn} do
+    payload = %{
+      distance: 100
+    }
+
+    %{status: status} = conn
+      |> patch(tracker_path(conn, :update, UUID.uuid4), Poison.encode!(payload))
+
+    assert status == 422
   end
 
   test "Deletes a record using a web request", %{conn: conn} do

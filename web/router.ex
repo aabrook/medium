@@ -11,6 +11,7 @@ defmodule DistanceTracker.Router do
     get "/", TrackerController, :index
     get "/:id", TrackerController, :show
     post "/", TrackerController, :create
+    patch "/:id", TrackerController, :update
     delete "/:id", TrackerController, :delete
   end
 end

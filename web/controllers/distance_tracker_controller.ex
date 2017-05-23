@@ -39,6 +39,25 @@ defmodule DistanceTracker.TrackerController do
     end
   end
 
+  def update(conn, params = %{"id" => uuid}) do
+    with tracker = %Tracker{} <- Repo.get(Tracker, uuid),
+      changeset = Tracker.changeset(tracker, params),
+      {:ok, updated} <- Repo.update(changeset) do
+        conn
+        |> Conn.put_status(201)
+        |> render("show.json", tracker: updated)
+    else
+      nil ->
+        conn
+        |> put_status(422)
+        |> render(ErrorView, "422.json", %{errors: ["Failed to find record"]})
+      {:error, %{errors: errors}} ->
+        conn
+        |> put_status(422)
+        |> render(ErrorView, "422.json", %{errors: errors})
+    end
+  end
+
   def delete(conn, %{"id" => uuid}) do
     with tracker = %Tracker{} <- Repo.get(Tracker, uuid) do
       Repo.delete!(tracker)
