@@ -5,6 +5,13 @@ defmodule DistanceTracker.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/swagger" do
+    forward "/", PhoenixSwagger.Plug.SwaggerUI,
+      otp_app: :distance_tracker,
+      swagger_file: "swagger.json",
+      disable_validator: true
+  end
+
   scope "/", DistanceTracker do
     pipe_through :api
 
