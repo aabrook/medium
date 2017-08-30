@@ -1,5 +1,6 @@
 defmodule DistanceTracker.TrackerControllerTest do
   use DistanceTracker.ConnCase, async: true
+  use PhoenixSwagger.SchemaTest, "priv/static/swagger.json"
 
   import DistanceTracker.Router.Helpers, only: [tracker_path: 2, tracker_path: 3]
 
@@ -9,14 +10,14 @@ defmodule DistanceTracker.TrackerControllerTest do
     Factory.insert(Tracker, params)
   end
 
-  test "List all trackers", %{conn: conn} do
+  test "List all trackers", %{conn: conn, swagger_schema: schema} do
     tracker_a = insert_tracker()
     tracker_b = insert_tracker()
 
-    %{"data" => data} = conn
+    data = conn
       |> get(tracker_path(conn, :index))
-      |> Map.get(:resp_body)
-      |> Poison.decode!
+      |> validate_resp_schema(schema, "Trackers")
+      |> json_response(200)
 
     assert [
       %{

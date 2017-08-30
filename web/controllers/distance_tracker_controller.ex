@@ -1,8 +1,44 @@
 defmodule DistanceTracker.TrackerController do
   use DistanceTracker.Web, :controller
+  use PhoenixSwagger
 
   alias DistanceTracker.{Tracker, Repo, ErrorView}
   alias Plug.Conn
+
+  def swagger_definitions do
+    %{
+      Tracker: swagger_schema do
+        title "Tracker"
+        description "An activity which has been recorded"
+        properties do
+          uuid :string, "The ID of the activity"
+          activity :string, "The activity recorded", required: true
+          distance :integer, "How far travelled", required: true
+          completed_at :string, "When was the activity completed", format: "ISO-8601"
+          inserted_at :string, "When was the activity initially inserted", format: "ISO-8601"
+          updated_at :string, "When was the activity last updated", format: "ISO-8601"
+        end
+        example %{
+          completed_at: "2017-03-21T14:00:00Z",
+          activity: "climbing",
+          distance: 150
+        }
+      end,
+      Trackers: swagger_schema do
+        title "Trackers"
+        description "All activities that have been recorded"
+        type :array
+        items Schema.ref(:Tracker)
+      end,
+      Error: swagger_schema do
+        title "Errors"
+        description "Error responses from the API"
+        properties do
+          error :string, "The message of the error raised", required: true
+        end
+      end
+    }
+  end
 
   def index(conn, _params) do
     trackers =
