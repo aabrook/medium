@@ -14,4 +14,13 @@ defmodule DistanceTracker.Router do
     patch "/:id", TrackerController, :update
     delete "/:id", TrackerController, :delete
   end
+
+  def swagger_info do
+    %{
+      info: %{
+        version: "1.0",
+        title: "Distance Tracker"
+      }
+    }
+  end
 end
