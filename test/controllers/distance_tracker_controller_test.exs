@@ -39,16 +39,15 @@ defmodule DistanceTracker.TrackerControllerTest do
     ] == data
   end
 
-  test "Show a tracker", %{conn: conn} do
+  test "Show a tracker", %{conn: conn, swagger_schema: schema} do
     tracker_a = insert_tracker()
     insert_tracker()
 
-    %{resp_body: body, status: status} = conn
+    data = conn
       |> get(tracker_path(conn, :show, tracker_a.uuid))
+      |> validate_resp_schema(schema, "Tracker")
+      |> json_response(200)
 
-    %{"data" => data} = Poison.decode!(body)
-
-    assert 200 == status
     assert %{
         "activity" => tracker_a.activity,
         "completed_at" => DateTime.to_iso8601(tracker_a.completed_at),
@@ -59,120 +58,96 @@ defmodule DistanceTracker.TrackerControllerTest do
       } == data
   end
 
-  test "Tracker not found returns a 404", %{conn: conn} do
-    %{resp_body: body, status: status} = conn
+  test "Tracker not found returns a 404", %{conn: conn, swagger_schema: schema} do
+    %{"error" => message} = conn
       |> get(tracker_path(conn, :show, UUID.uuid4()))
+      |> validate_resp_schema(schema, "Error")
+      |> json_response(404)
 
-    %{"error" => message} = Poison.decode!(body)
-
-    assert 404 == status
     assert "Page not found" == message
   end
 
-  test "Create a new record through post", %{conn: conn} do
+  test "Create a new record through post", %{conn: conn, swagger_schema: schema} do
     payload = %{
       "completed_at" => "2017-03-21T14:00:00Z",
       "activity" => "climbing",
       "distance" => 150
     }
 
-    %{resp_body: body, status: status} = conn
+    %{"uuid" => uuid} = conn
       |> post(tracker_path(conn, :create), Poison.encode!(payload))
+      |> validate_resp_schema(schema, "Tracker")
+      |> json_response(201)
 
-    response = body
-      |> Poison.decode!
-      |> Map.get("data")
-      |> Map.take(["completed_at", "activity", "distance"])
+    %{
+      completed_at: completed_at,
+      activity: activity,
+      distance: distance
+    } = Repo.get(Tracker, uuid)
 
-    assert payload == response
-    assert 201 == status
+    expected_date = ~N[2017-03-21 14:00:00.000000]
+      |> DateTime.from_naive!("Etc/UTC")
+
+    assert activity == "climbing"
+    assert distance == 150
+    assert completed_at == expected_date
   end
 
-  test "Requires activity when creating a request", %{conn: conn} do
+  test "Requires activity when creating a request", %{conn: conn, swagger_schema: schema} do
     payload = %{
       "completed_at" => "2017-03-21T14:00:00Z",
       "distance": 150
     }
 
-    %{resp_body: body, status: status} = conn
+    %{"error" => message} = conn
       |> post(tracker_path(conn, :create), Poison.encode!(payload))
+      |> validate_resp_schema(schema, "Error")
+      |> json_response(422)
 
-    %{"error" => _message} = Poison.decode!(body)
-
-    assert %{"error" => "Bad request"} == Poison.decode!(body)
-    assert 422 == status
+    assert "Bad request" == message
   end
 
-  test "Requires completed_at when creating a request", %{conn: conn} do
+  test "Requires completed_at when creating a request", %{conn: conn, swagger_schema: schema} do
     payload = %{
       "activity": "swimming",
       "distance": 150
     }
 
-    %{resp_body: body, status: status} = conn
+    %{"error" => message} = conn
       |> post(tracker_path(conn, :create), Poison.encode!(payload))
+      |> validate_resp_schema(schema, "Error")
+      |> json_response(422)
 
-    %{"error" => _message} = Poison.decode!(body)
-
-    assert %{"error" => "Bad request"} == Poison.decode!(body)
-    assert 422 == status
+    assert "Bad request" = message
   end
 
-  test "Create saves to the database", %{conn: conn} do
-    {:ok, date, _} = DateTime.from_iso8601("2017-03-21T14:00:00Z")
-
-    payload = %{
-      "completed_at" => "2017-03-21T14:00:00Z",
-      "activity" => "climbing",
-      "distance" => 150
-    }
-
-    %{resp_body: body} = conn
-      |> post(tracker_path(conn, :create), Poison.encode!(payload))
-
-    response = body
-      |> Poison.decode!
-      |> get_in(["data", "uuid"])
-
-    record = Tracker
-      |> Repo.get(response)
-      |> Map.take([:completed_at, :activity, :distance])
-
-    assert DateTime.compare(record.completed_at, date)
-    assert %{
-      activity: "climbing",
-      distance: 150
-    } == Map.drop(record, [:completed_at])
-  end
-
-  test "Updates a record", %{conn: conn} do
+  test "Updates a record", %{conn: conn, swagger_schema: schema} do
     tracker = Factory.insert(Tracker, %{distance: 50})
 
     payload = %{
       distance: 100
     }
 
-    %{resp_body: body, status: status} = conn
+    %{"distance" => distance} = conn
       |> patch(tracker_path(conn, :update, tracker.uuid), Poison.encode!(payload))
-
-    distance = body
-      |> Poison.decode!
-      |> get_in(["data", "distance"])
+      |> validate_resp_schema(schema, "Tracker")
+      |> json_response(201)
 
     assert distance == 100
-    assert status == 201
     assert Repo.get(Tracker, tracker.uuid).distance == 100
   end
 
-  test "errors with an invalid uuid", %{conn: conn} do
+  test "errors with an invalid uuid", %{conn: conn, swagger_schema: schema} do
     payload = %{
       distance: 100
     }
 
-    %{status: status} = conn
+    %{"error" => message} = conn
       |> patch(tracker_path(conn, :update, UUID.uuid4), Poison.encode!(payload))
+      |> validate_resp_schema(schema, "Error")
+      |> json_response(422)
 
-    assert status == 422
+    assert "Bad request" == message
   end
 
   test "Deletes a record using a web request", %{conn: conn} do
@@ -193,13 +168,14 @@ defmodule DistanceTracker.TrackerControllerTest do
     assert nil == Repo.get(Tracker, uuid)
   end
 
-  test "Delete returns a 404 if the record is not found", %{conn: conn} do
+  test "Delete returns a 404 if the record is not found", %{conn: conn, swagger_schema: schema} do
     uuid = UUID.uuid4()
 
-    %{resp_body: body, status: status} = conn
+    %{"error" => message} = conn
       |> delete(tracker_path(conn, :delete, uuid))
+      |> validate_resp_schema(schema, "Error")
+      |> json_response(404)
 
-    assert 404 == status
-    assert %{"error" => "Page not found"} == Poison.decode!(body)
+    assert "Page not found" == message
   end
 end
