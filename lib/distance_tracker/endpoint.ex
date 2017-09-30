@@ -1,5 +1,7 @@
 defmodule DistanceTracker.Endpoint do
   use Phoenix.Endpoint, otp_app: :distance_tracker
+  
+  plug CORSPlug
 
   # Serve at "/" the static files from "priv/static" directory.
   #

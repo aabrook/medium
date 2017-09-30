@@ -5,6 +5,13 @@ defmodule DistanceTracker.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/swagger" do
+    forward "/", PhoenixSwagger.Plug.SwaggerUI,
+      otp_app: :distance_tracker,
+      swagger_file: "swagger.json",
+      disable_validator: true
+  end
+
   scope "/", DistanceTracker do
     pipe_through :api
 
@@ -13,5 +20,14 @@ defmodule DistanceTracker.Router do
     post "/", TrackerController, :create
     patch "/:id", TrackerController, :update
     delete "/:id", TrackerController, :delete
+  end
+
+  def swagger_info do
+    %{
+      info: %{
+        version: "1.0",
+        title: "Distance Tracker"
+      }
+    }
   end
 end
