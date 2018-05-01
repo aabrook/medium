@@ -6,6 +6,11 @@ defmodule DistanceTracker.Router do
   end
 
   forward("/graphql", Absinthe.Plug, schema: DistanceTracker.Schema)
+  if Mix.env == :dev do
+    forward "/graphiql",
+    Absinthe.Plug.GraphiQL,
+    schema: DistanceTracker.Schema
+  end
 
   scope "/swagger" do
     forward "/", PhoenixSwagger.Plug.SwaggerUI,
