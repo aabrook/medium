@@ -1,0 +1,230 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/{id}": {
+      "patch": {
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Update an existing activity",
+        "responses": {
+          "422": {
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "description": "Unprocessable Entity"
+          },
+          "201": {
+            "schema": {
+              "$ref": "#/definitions/Tracker"
+            },
+            "description": "Ok"
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "The uuid of the activity"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/Tracker"
+            },
+            "required": false,
+            "name": "tracker",
+            "in": "body",
+            "description": "The activity details to update"
+          }
+        ],
+        "operationId": "DistanceTracker.TrackerController.update",
+        "description": "Record changes to a completed activity"
+      },
+      "get": {
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Retrieve an activity",
+        "responses": {
+          "404": {
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "description": "Not found"
+          },
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/Tracker"
+            },
+            "description": "Ok"
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "The uuid of the activity"
+          }
+        ],
+        "operationId": "DistanceTracker.TrackerController.show",
+        "description": "Retrieve an activity that you have recorded"
+      },
+      "delete": {
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Delete an activity",
+        "responses": {
+          "404": {
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "description": "Not found"
+          },
+          "204": {
+            "description": "No content"
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "The uuid of the activity"
+          }
+        ],
+        "operationId": "DistanceTracker.TrackerController.delete",
+        "description": "Remove an activity from the system"
+      }
+    },
+    "/": {
+      "post": {
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Add a new activity",
+        "responses": {
+          "422": {
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "description": "Unprocessable Entity"
+          },
+          "201": {
+            "schema": {
+              "$ref": "#/definitions/Tracker"
+            },
+            "description": "Ok"
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/definitions/Tracker"
+            },
+            "required": true,
+            "name": "tracker",
+            "in": "body",
+            "description": "Activity to record"
+          }
+        ],
+        "operationId": "DistanceTracker.TrackerController.create",
+        "description": "Record a new activity which has been completed"
+      },
+      "get": {
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "List all recorded activities",
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/Trackers"
+            },
+            "description": "Ok"
+          }
+        },
+        "parameters": [],
+        "operationId": "DistanceTracker.TrackerController.index",
+        "description": "List all recorded activities"
+      }
+    }
+  },
+  "info": {
+    "version": "1.0",
+    "title": "Distance Tracker"
+  },
+  "host": "localhost:4000",
+  "definitions": {
+    "Trackers": {
+      "type": "array",
+      "title": "Trackers",
+      "items": {
+        "$ref": "#/definitions/Tracker"
+      },
+      "description": "All activities that have been recorded"
+    },
+    "Tracker": {
+      "type": "object",
+      "title": "Tracker",
+      "required": [
+        "distance",
+        "activity"
+      ],
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "description": "The ID of the activity"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "ISO-8601",
+          "description": "When was the activity last updated"
+        },
+        "inserted_at": {
+          "type": "string",
+          "format": "ISO-8601",
+          "description": "When was the activity initially inserted"
+        },
+        "distance": {
+          "type": "integer",
+          "description": "How far travelled"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "ISO-8601",
+          "description": "When was the activity completed"
+        },
+        "activity": {
+          "type": "string",
+          "description": "The activity recorded"
+        }
+      },
+      "example": {
+        "distance": 150,
+        "completed_at": "2017-03-21T14:00:00Z",
+        "activity": "climbing"
+      },
+      "description": "An activity which has been recorded"
+    },
+    "Error": {
+      "type": "object",
+      "title": "Errors",
+      "required": [
+        "error"
+      ],
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "The message of the error raised"
+        }
+      },
+      "description": "Error responses from the API"
+    }
+  }
+}

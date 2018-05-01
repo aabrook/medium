@@ -5,6 +5,8 @@ defmodule DistanceTracker.Router do
     plug :accepts, ["json"]
   end
 
+  forward("/graphql", Absinthe.Plug, schema: DistanceTracker.Schema)
+
   scope "/swagger" do
     forward "/", PhoenixSwagger.Plug.SwaggerUI,
       otp_app: :distance_tracker,

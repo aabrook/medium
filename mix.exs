@@ -30,7 +30,9 @@ defmodule DistanceTracker.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:cors_plug, "~> 1.4"},
+    [{:absinthe, "~> 1.4.0"},
+     {:absinthe_plug, "~> 1.4"},
+     {:cors_plug, "~> 1.4"},
      {:ex_json_schema, "~> 0.5.1"},
      {:phoenix, "~> 1.3.0"},
      {:phoenix_pubsub, "~> 1.0"},
